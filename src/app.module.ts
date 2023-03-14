@@ -6,10 +6,12 @@ import WebhookController from './routes/webhook/webhook';
 import { GithubSignatureGuard } from './shared/guards/github-signature.guard';
 import Service, { ServiceSchema } from './shared/models/service';
 import GithubService from './shared/services/github.service';
+import RunnerService from './shared/services/runner.service';
 
 @Module({
   providers: [
     GithubService,
+    RunnerService,
     GithubSignatureGuard,
   ],
   controllers: [WebhookController],
