@@ -19,7 +19,10 @@ export default class Service {
   commands: string[];
 
   @Prop({ type: [SchemaTypes.String] })
-  conditions: string[];
+  envConditions: string[];
+
+  @Prop({ type: [{ _id: false, key: SchemaTypes.String, value: SchemaTypes.Mixed }] })
+  payloadConditions: { key: string, value: any }[];
 }
 
 export const ServiceSchema = SchemaFactory.createForClass(Service);

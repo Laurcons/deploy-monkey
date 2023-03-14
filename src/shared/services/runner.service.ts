@@ -4,11 +4,12 @@ import { exec } from 'child_process';
 export interface ExecOut {
   stdout: string;
   stderr: string;
+  exitCode?: number;
 }
 
 const execP = (cmd: string) => new Promise<ExecOut>((res, rej) => {
   exec(cmd, (err, stdout, stderr) => {
-    if (err) rej(err);
+    if (err) res({ exitCode: err.code, stdout, stderr });
     res({ stdout, stderr });
   });
 });
@@ -25,6 +26,9 @@ export default class RunnerService {
     for (const command of commands) {
       const out = await execP(command);
       outs.push(out);
+      if (out.exitCode) {
+        Logger.log("Execution stopped: found nonzero exit code");
+      }
     }
     return outs;
   }
@@ -37,11 +41,10 @@ export default class RunnerService {
   async runConditions(conditions: string[]) {
     if (!conditions) return;
     for (const [condition, index] of conditions.map<[string, number]>((c, i) => [c, i])) {
-      try {
-        await execP(condition);
-      } catch (err) {
+      const { exitCode } = await execP(condition);
+      if (exitCode) {
         throw {
-          exitCode: err.code,
+          exitCode,
           index,
         };
       }

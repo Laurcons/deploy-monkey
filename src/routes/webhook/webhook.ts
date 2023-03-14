@@ -1,4 +1,4 @@
-import { Controller, Param, Post, UseGuards } from "@nestjs/common";
+import { Body, Controller, Param, Post, UseGuards } from "@nestjs/common";
 import { InjectModel } from "@nestjs/mongoose";
 import { Model } from "mongoose";
 import { GithubSignatureGuard } from "src/shared/guards/github-signature.guard";
@@ -15,17 +15,28 @@ export default class WebhookController {
 
   @Post(':service/deploy')
   @UseGuards(GithubSignatureGuard)
-  public async deploy(@Param('service') serviceName: string) {
+  public async deploy(@Param('service') serviceName: string, @Body() body: any) {
     const service = await this.serviceModel.findOne({ name: serviceName });
     // service exists, as checked by the signature guard
 
-    // check conditions
+    // check payload conditions
+    for (const { key, value } of service.payloadConditions) {
+      if (body[key] !== value) {
+        return {
+          ran: false,
+          reason: 'one payload condition failed',
+          data: { key },
+        };
+      }
+    }
+
+    // check env conditions
     try {
-      await this.runnerService.runConditions(service.conditions);
+      await this.runnerService.runConditions(service.envConditions);
     } catch (err) {
       return {
         ran: false,
-        reason: 'one run condition returned nonzero exit code',
+        reason: 'one env condition returned nonzero exit code',
         data: err,
       };
     }
