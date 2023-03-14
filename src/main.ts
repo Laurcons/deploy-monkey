@@ -1,8 +1,17 @@
 import { NestFactory } from '@nestjs/core';
+import { NestExpressApplication } from '@nestjs/platform-express';
+import morgan from 'morgan';
 import { AppModule } from './app.module';
 
 async function bootstrap() {
-  const app = await NestFactory.create(AppModule);
+  const app = await NestFactory.create<NestExpressApplication>(AppModule, { rawBody: true });
+
+  app.use(morgan('combined'));
+  // app.use((req, res, next) => {
+  //   console.log(req.headers);
+  //   next();
+  // });
+
   await app.listen(3000);
 }
 bootstrap();
