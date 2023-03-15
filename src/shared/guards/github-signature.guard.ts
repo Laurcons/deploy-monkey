@@ -7,6 +7,10 @@ import { Observable } from "rxjs";
 import Service, { ServiceModel } from "../models/service";
 import GithubService from "../services/github.service";
 
+/**
+ * Validates the current request's Github signature against the `service` param
+ * found in the request params.
+ */
 @Injectable()
 export class GithubSignatureGuard implements CanActivate {
   constructor(
