@@ -13,7 +13,7 @@ export default class WebhookController {
     private runnerService: RunnerService,
   ) { }
 
-  @Post(':service/deploy')
+  @Post(':service/manual')
   @UseGuards(GithubSignatureGuard)
   public async deploy(@Param('service') serviceName: string, @Body() body: any) {
     const service = await this.serviceModel.findOne({ name: serviceName });
