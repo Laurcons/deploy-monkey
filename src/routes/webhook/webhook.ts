@@ -45,8 +45,10 @@ export default class WebhookController {
       await this.runnerService.runCommands(service.commands) :
       [];
 
+    const ran = outs.every(out => out.exitCode === 0);
+
     return {
-      ran: true,
+      ran,
       outs
     };
   }
