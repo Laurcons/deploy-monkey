@@ -10,5 +10,6 @@ const getOrThrow = <T = string>(key: string, transform?: (f: string) => T) => {
 };
 
 export const config = {
+  port: getOrThrow('PORT', parseInt),
   mongoUrl: getOrThrow('MONGO_URL'),
 };
