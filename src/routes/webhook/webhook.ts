@@ -1,5 +1,6 @@
-import { Body, Controller, Param, Post, UseGuards } from "@nestjs/common";
+import { Body, Controller, Param, Post, Res, UseGuards } from "@nestjs/common";
 import { InjectModel } from "@nestjs/mongoose";
+import { Response } from "express";
 import { Model } from "mongoose";
 import { GithubSignatureGuard } from "src/shared/guards/github-signature.guard";
 import Service from "src/shared/models/service";
@@ -15,7 +16,7 @@ export default class WebhookController {
 
   @Post(':service/manual')
   @UseGuards(GithubSignatureGuard)
-  public async deploy(@Param('service') serviceName: string, @Body() body: any) {
+  public async deploy(@Res({ passthrough: true }) res: Response, @Param('service') serviceName: string, @Body() body: any) {
     const service = await this.serviceModel.findOne({ name: serviceName });
     // service exists, as checked by the signature guard
 
@@ -46,6 +47,7 @@ export default class WebhookController {
       [];
 
     const ran = outs.every(out => out.exitCode === 0);
+    if (!ran) res.status(503);
 
     return {
       ran,
